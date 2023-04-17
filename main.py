@@ -4,43 +4,21 @@ from telegram.ext import (
     ConversationHandler, MessageHandler,
     filters, Updater, CallbackQueryHandler, ApplicationBuilder
 )
-from config import TOKEN
+from config import BOT_TOKEN
 
-app = ApplicationBuilder().token(TOKEN).build()
+app = ApplicationBuilder().token(BOT_TOKEN).build()
 print(app)
 
 def main():
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', handlers.start)],
         states={
-            handlers.CHOOSING: [
-                MessageHandler(
-                    filters.ALL, handlers.choose
-                )
+            handlers.BOT_START: [
+                CallbackQueryHandler(handlers.bot_start)
             ],
-            handlers.CLASS_STATE: [
-                CallbackQueryHandler(handlers.classer)
-            ],
-            handlers.SME_DETAILS: [
-                MessageHandler(
-                    filters.ALL, handlers.business_details
-                )
-            ],
-            handlers.SME_CAT: [
-                CallbackQueryHandler(handlers.business_details_update)
-            ],
-            handlers.ADD_PRODUCTS: [
-                CallbackQueryHandler(handlers.add_product),
-                MessageHandler(filters.ALL, handlers.product_info)
-            ],
-            handlers.CHOOSE_PREF: [
-                CallbackQueryHandler(handlers.customer_pref)
-            ],
-            handlers.SHOW_STOCKS: [
-                CallbackQueryHandler(handlers.show_products)
-            ],
-            handlers.POST_VIEW_PRODUCTS: [
-                CallbackQueryHandler(handlers.post_view_products)
+            handlers.BOT_CONFIG: [
+                CallbackQueryHandler(handlers.bot_config),
+                MessageHandler(filters.ALL, handlers.bot_reply)
             ]
         },
         fallbacks=[CommandHandler('cancel', handlers.cancel)],
