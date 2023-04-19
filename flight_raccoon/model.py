@@ -1,12 +1,14 @@
 import pandas as pd
-from pprint import pprint
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger()
 
 class Model:
     @staticmethod
     def read():
         try:
             res = pd.read_csv('data.csv')
-            pprint(res)
+            logger.info(res)
             return res
         except FileNotFoundError:
-            print('File not found')
+            logger.warning('File not found')

@@ -7,7 +7,6 @@ from telegram.ext import (
 from config import BOT_TOKEN
 
 app = ApplicationBuilder().token(BOT_TOKEN).build()
-print(app)
 
 def main():
     conv_handler = ConversationHandler(
@@ -25,6 +24,7 @@ def main():
         allow_reentry=True
     )
     app.add_handler(conv_handler)
+    app.add_handler(CommandHandler("unset", handlers.unset))
     app.run_polling()
 
 if __name__ == '__main__':

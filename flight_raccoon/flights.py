@@ -1,6 +1,9 @@
 from pprint import pprint
 import requests
 from config import TEQUILA_API_KEY, TEQUILA_API
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger()
 
 class Flights:
     url = ""
@@ -22,7 +25,7 @@ class Flights:
                     data = [{x: y for x, y in n.items() if x in ['cityTo', 'conversion', 'countryTo', 'has_airport_change', 'price', 'local_departure', 'local_arrival']} for n in data.get('data') if (n.get('pnr_count') < 3) and (n.get('availability').get('seats') is not None) and int(n.get('availability').get('seats', 0)) > 3]
                     return data
         except Exception as e:
-            print(e)
+            logger.warning(e)
             return {}
 
     def get_round_prices(self, date_from, date_to, fly_from, fly_to, price_to, nights_in_dst_from, nights_in_dst_to, max_fly_duration,) -> dict:
@@ -34,5 +37,5 @@ class Flights:
                     data = [{x: y for x, y in n.items() if x in ['deep_link', 'conversion']} for n in data.get('data') if (n.get('pnr_count') < 3) and (n.get('availability').get('seats') is not None) and int(n.get('availability').get('seats', 0)) > 3]
                     return data
         except Exception as e:
-            print(e)
+            logger.warning(e)
             return {}

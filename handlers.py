@@ -6,7 +6,8 @@ from telegram import (
 from telegram.ext import (
     CommandHandler, CallbackContext,
     ConversationHandler, MessageHandler,
-    filters, Updater, CallbackQueryHandler
+    filters, Updater, CallbackQueryHandler,
+    ContextTypes
 )
 from config import (
     API_KEY,
@@ -21,6 +22,9 @@ from faunadb import query as q
 from faunadb.client import FaunaClient
 from faunadb.errors import NotFound
 from flight_raccoon.flight_raccoon import give_me_flights, give_me_accomodation
+import logging, datetime, pytz
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger()
 
 # configure cloudinary
 cloudinary.config(
@@ -33,7 +37,7 @@ cloudinary.config(
 client = FaunaClient(secret=FAUNA_KEY)
 
 # Define Options
-BOT_START, BOT_CONFIG, BOT_REPLY = range(3)
+BOT_START, BOT_CONFIG, BOT_REPLY, UNSET = range(4)
 options = {
     'flights': give_me_flights,
     'accomodation': give_me_accomodation,
@@ -53,10 +57,10 @@ async def start(update, context: CallbackContext) -> int:
                 text="Flight Tickets",
                 callback_data="flights"
             ),
-            InlineKeyboardButton(
-                text="Accomodation",
-                callback_data="accomodation"
-            )
+            # InlineKeyboardButton(
+            #     text="Accomodation",
+            #     callback_data="accomodation"
+            # )
         ]
     ]
     markup = InlineKeyboardMarkup(reply_keyboard)
@@ -115,24 +119,42 @@ async def bot_config(update, context: CallbackContext) -> int:
 async def bot_reply(update: Update, context: CallbackContext) -> int:
     bot = context.bot
     chat_id = update.message.chat.id
-    data = update.message.text
+    data = {
+        'data': update.message.text,
+        'user_data': context.user_data
+    }
+    context.job_queue.run_daily(bot_ping, datetime.time(hour=6, minute=27, tzinfo=pytz.timezone('Asia/Kolkata')),  days=(0, 1, 2, 3, 4, 5, 6), chat_id=chat_id, name=str(chat_id), data=data)
+    await bot.send_message(
+        chat_id=chat_id,
+        text="Job started... Please wait for the next itteration of results..."
+    )
+    return ConversationHandler.END
+
+async def bot_ping(context: ContextTypes.DEFAULT_TYPE) -> None:
+    job = context.job
     try:
-        result = context.user_data['source'](data)
+        result = job.data.get('user_data').get('source')(job.data.get('data'))
         if len(result) == 0:
-            await bot.send_message(
-                chat_id=chat_id,
-                text=f"Sorry, I couldn't find anything for {data}"
+            await context.bot.send_message(
+                chat_id=job.chat_id,
+                text=f"Sorry, I couldn't find anything for {job.data.get('data')}"
             )
         for v in result:
-            await bot.send_message(
-                chat_id=chat_id,
+            await context.bot.send_message(
+                chat_id=job.chat_id,
                 text=v,
             )
     except Exception as e:
-        print(e)
-    return ConversationHandler.END
+        logger.warning(e)
 
-# Control
+def remove_job_if_exists(name: str, context: ContextTypes.DEFAULT_TYPE) -> bool:
+    current_jobs = context.job_queue.get_jobs_by_name(name)
+    if not current_jobs:
+        return False
+    for job in current_jobs:
+        job.schedule_removal()
+    return True
+
 async def cancel(update: Update, context: CallbackContext) -> int: 
     await update.message.reply_text(
         'Bye! I hope we can talk again some day.',
@@ -140,3 +162,9 @@ async def cancel(update: Update, context: CallbackContext) -> int:
     )
 
     return ConversationHandler.END
+
+async def unset(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    chat_id = update.message.chat_id
+    job_removed = remove_job_if_exists(str(chat_id), context)
+    text = "Timer successfully cancelled!" if job_removed else "You have no active timer."
+    await update.message.reply_text(text)

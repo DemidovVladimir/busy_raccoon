@@ -1,6 +1,8 @@
 from config import API_KEY
 from flight_raccoon.flights import Flights
-from pprint import pprint
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger()
 
 def give_me_flights(data: str) -> str:
     data = data.split(',')
@@ -13,7 +15,7 @@ def give_me_flights(data: str) -> str:
             res_data = [x for x in res_data]
             result = res_data[0:5]
     except Exception as e:
-        print(e)
+        logger.warning(e)
         
     
     return result
