@@ -56,11 +56,9 @@ async def bot_scheduler_set(update: Update, context: CallbackContext) -> int:
     chat_id = update.message.chat.id
     data = update.message.text
     data = data.split(',')
-    print(len(data))
     if len(data) > 1:
         data = [x.strip() for x in data]
         tz = data[0].split(':')
-        print(len(tz))
         if len(tz) > 1:
             tz = [x.strip() for x in tz]
             context.user_data['scheduler'] = {
