@@ -1,4 +1,3 @@
-from config import API_KEY
 from flight_raccoon.flights import Flights
 import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
