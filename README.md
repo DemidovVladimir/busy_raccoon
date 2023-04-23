@@ -1,14 +1,19 @@
 # busy_raccoon is the flight search bot
 
 ## Configuration
+
 This is needed if you want to launch your own flight search bot
 
 ### .env configuration
+
+```bash
 BOT_TOKEN=<string> 
 TEQUILA_API=https://api.tequila.kiwi.com/v2
 TEQUILA_API_KEY=<string>
+```
 
 ## Create a new Telegram bot with BotFather
+
 Create a Telegram bot with BotFather before connecting your bot to Telegram.
 1. Start a new conversation with the BotFather.
 2. Send /newbot to create a new Telegram bot.
@@ -17,6 +22,7 @@ Create a Telegram bot with BotFather before connecting your bot to Telegram.
 5. Copy and save the Telegram bot's access token for later steps <BOT_TOKEN>.
 
 ## Register with the Kiwi Partners Flight Search API
+
 Register as a kiwi Partners Flight Search API (Free Signup, Credit Card not required) - https://partners.kiwi.com/
 No need for any payment details
 When registering for your API key choose Meta Search as your product type.
@@ -25,6 +31,7 @@ Choose "Book with Kiwi.com" or the affiliate program.
 Tequila Flight Search API Documentation - https://tequila.kiwi.com/portal/docs/tequila_api
 
 ## Runing bot
+
 Install pyenv
 Create a sepparate env by running: `pyenv virtualenv 3.11 raccoon`
 Activate it: `pyenv local raccoon && pyenv activate raccoon`
