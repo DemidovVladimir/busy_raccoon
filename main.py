@@ -1,8 +1,7 @@
 import handlers
 from telegram.ext import (
-    CommandHandler, CallbackContext,
-    ConversationHandler, MessageHandler,
-    filters, Updater, CallbackQueryHandler, ApplicationBuilder
+    CommandHandler, ConversationHandler, MessageHandler,
+    filters, CallbackQueryHandler, ApplicationBuilder
 )
 from config import BOT_TOKEN
 
@@ -12,8 +11,9 @@ def main():
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', handlers.start)],
         states={
-            handlers.BOT_START: [
-                CallbackQueryHandler(handlers.bot_start)
+            handlers.BOT_SCHEDULER: [
+                CallbackQueryHandler(handlers.bot_scheduler),
+                MessageHandler(filters.ALL, handlers.bot_scheduler_set)
             ],
             handlers.BOT_CONFIG: [
                 CallbackQueryHandler(handlers.bot_config),

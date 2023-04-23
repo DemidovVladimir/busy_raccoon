@@ -1,43 +1,17 @@
 from telegram import (
-    ReplyKeyboardMarkup,
     ReplyKeyboardRemove, Update,
     InlineKeyboardButton, InlineKeyboardMarkup
 )
 from telegram.ext import (
-    CommandHandler, CallbackContext,
-    ConversationHandler, MessageHandler,
-    filters, Updater, CallbackQueryHandler,
-    ContextTypes
+    CallbackContext, ConversationHandler, ContextTypes
 )
-from config import (
-    API_KEY,
-    API_SECRET,
-    FAUNA_KEY,
-    CLOUD_NAME
-)
-import cloudinary
-from cloudinary.uploader import upload
-from cloudinary.utils import cloudinary_url
-from faunadb import query as q
-from faunadb.client import FaunaClient
-from faunadb.errors import NotFound
 from flight_raccoon.flight_raccoon import give_me_flights, give_me_accomodation
 import logging, datetime, pytz
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger()
 
-# configure cloudinary
-cloudinary.config(
-    cloud_name=CLOUD_NAME,
-    api_key=API_KEY,
-    api_secret=API_SECRET
-)
-
-# fauna client config
-client = FaunaClient(secret=FAUNA_KEY)
-
 # Define Options
-BOT_START, BOT_CONFIG, BOT_REPLY, UNSET = range(4)
+BOT_START, BOT_SCHEDULER, BOT_SCHEDULER_SET, BOT_CONFIG, BOT_REPLY, UNSET = range(6)
 options = {
     'flights': give_me_flights,
     'accomodation': give_me_accomodation,
@@ -54,13 +28,9 @@ async def start(update, context: CallbackContext) -> int:
     reply_keyboard = [
         [
             InlineKeyboardButton(
-                text="Flight Tickets",
-                callback_data="flights"
+                text="Configure scheduler",
+                callback_data="scheduler"
             ),
-            # InlineKeyboardButton(
-            #     text="Accomodation",
-            #     callback_data="accomodation"
-            # )
         ]
     ]
     markup = InlineKeyboardMarkup(reply_keyboard)
@@ -69,65 +39,98 @@ async def start(update, context: CallbackContext) -> int:
         text="Please choose what should I search for:",
         reply_markup=markup
     )
-    return BOT_START
+    return BOT_SCHEDULER
 
-async def bot_start(update, context: CallbackContext) -> int: 
+async def bot_scheduler(update, context: CallbackContext) -> int: 
     bot = context.bot
     chat_id = update.callback_query.message.chat.id
-    source_type = update.callback_query.data.lower()
     await bot.send_message(
         chat_id=chat_id,
-        text=f"looking for {source_type} \n",
+        text="Add scheduler parameters: time to get results from bot: hours:minutes, timezone"
+        "separated by commas(,) example: 10:30, Europe/Berlin"
     )
-    reply_keyboard = [
-        [
-            InlineKeyboardButton(
-                text="Search",
-                callback_data="search"
+    return BOT_SCHEDULER
+
+async def bot_scheduler_set(update: Update, context: CallbackContext) -> int:
+    bot = context.bot
+    chat_id = update.message.chat.id
+    data = update.message.text
+    data = data.split(',')
+    print(len(data))
+    if len(data) > 1:
+        data = [x.strip() for x in data]
+        tz = data[0].split(':')
+        print(len(tz))
+        if len(tz) > 1:
+            tz = [x.strip() for x in tz]
+            context.user_data['scheduler'] = {
+                'hours': tz[0],
+                'minutes': tz[1],
+                'timezone': data[1]
+            }
+            hours, minutes, timezone = context.user_data['scheduler'].values()
+            await update.message.reply_text(
+                f"You will be notified by this bot every day at {hours}: {minutes}, using {timezone} timezone",
             )
-        ]
-    ]
-    markup = InlineKeyboardMarkup(reply_keyboard)
-    await bot.send_message(
-        chat_id=chat_id,
-        text="Initiated search...",
-        reply_markup=markup
-    )
-    # function to execute
-    context.user_data['source'] = options[source_type]
-    # type to print
-    context.user_data['source_type'] = source_type
-    return BOT_CONFIG
-
-async def bot_config(update, context: CallbackContext) -> int: 
-    bot = context.bot
-    chat_id = update.callback_query.message.chat.id
-    if (context.user_data['source_type'] == "flights"):
-        await bot.send_message(
-            chat_id=chat_id,
-            text="Add the StartFrom(DD/MM/YYYY), Add the StartTo(DD/MM/YYYY), AirportFrom, AirportTo, MaxPrice, NightsLow, NightsBig, MaxDuration"
-            "separated by commas(,)"
-        )
+            reply_keyboard = [
+                [
+                    InlineKeyboardButton(
+                        text="Flight Tickets",
+                        callback_data="flights"
+                    )
+                ]
+            ]
+            markup = InlineKeyboardMarkup(reply_keyboard)
+            await bot.send_message(
+                chat_id=chat_id,
+                text="Please choose what should I search for:",
+                reply_markup=markup
+            )
+            return BOT_CONFIG
+        else:
+            await update.message.reply_text(
+                "Please provide arguments according instructions: time to get results from bot: hours:minutes, timezone",
+            )
+            return ConversationHandler.END
     else:
         await bot.send_message(
             chat_id=chat_id,
-            text="Add the StartFrom(DD/MM/YYYY), Add the StartTo(DD/MM/YYYY), Hotel, Apparts, MaxPrice, NightsLow, NightsBig"
-            "separated by commas(,)"
+            text="Please provide arguments according instructions: time to get results from bot: hours:minutes, timezone",
+            reply_markup=markup
         )
+        return ConversationHandler.END
+
+async def bot_config(update, context: CallbackContext) -> int: 
+    source_type = update.callback_query.data.lower()
+    context.user_data['source'] = options[source_type]
+    context.user_data['source_type'] = source_type
+    bot = context.bot
+    chat_id = update.callback_query.message.chat.id
+    await bot.send_message(
+        chat_id=chat_id,
+        text="Add the starting search date(DD/MM/YYYY), Add the ending search date(DD/MM/YYYY), Take of Airport, Destination Airport, Max Price, Min Nights in location, Max Nights in destination, Max Flight duration in hours"
+        "separated by commas(,) example: 23/07/2023, 25/08/2023, BER, ALA, 600,  20, 30, 15"
+    )
     return BOT_CONFIG
 
 async def bot_reply(update: Update, context: CallbackContext) -> int:
+    hours, minutes, timezone = context.user_data['scheduler'].values()
     bot = context.bot
     chat_id = update.message.chat.id
     data = {
         'data': update.message.text,
         'user_data': context.user_data
     }
-    context.job_queue.run_daily(bot_ping, datetime.time(hour=6, minute=27, tzinfo=pytz.timezone('Asia/Kolkata')),  days=(0, 1, 2, 3, 4, 5, 6), chat_id=chat_id, name=str(chat_id), data=data)
-    await bot.send_message(
-        chat_id=chat_id,
-        text="Job started... Please wait for the next itteration of results..."
-    )
+    logger.info(context.user_data['scheduler'])
+    try:
+        context.job_queue.run_daily(bot_ping, datetime.time(hour=int(hours), minute=int(minutes), tzinfo=pytz.timezone(timezone)),  days=(0, 1, 2, 3, 4, 5, 6), chat_id=chat_id, name=str(chat_id), data=data)
+        # context.job_queue.run_once(bot_ping, 15, chat_id=chat_id, name=str(chat_id), data=data)
+        await bot.send_message(
+            chat_id=chat_id,
+            text="Job started... Please wait for the next itteration of results..."
+        )
+    except Exception as e:
+        logger.warning(e)
     return ConversationHandler.END
 
 async def bot_ping(context: ContextTypes.DEFAULT_TYPE) -> None:
