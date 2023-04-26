@@ -5,7 +5,7 @@ from dictionary import get_info
 import queue
 from config import BOT_TOKEN
 
-updater = Updater(BOT_TOKEN, use_context=True, update_queue=queue.Queue())
+updater = Updater(BOT_TOKEN, update_queue=queue.Queue())
 dispatcher = updater.dispatcher
 
 
