@@ -1,35 +1,43 @@
-import os
-import requests
-from flask import Flask
+import telegram
+from telegram.ext import Updater, MessageHandler, Filters
+from telegram.ext import CommandHandler
+from config import BOT_TOKEN
 
-app = Flask(__name__)
+telegram_bot_token = BOT_TOKEN
 
-
-@app.route('/')
-def get_info():
-
-    url = 'https://api.dictionaryapi.dev/api/v2/entries/en/{}'.format('file')
-
-    response = requests.get(url)
-
-# return a custom response if an invalid word is provided
-    if response.status_code == 404:
-        error_response = 'We are not able to provide any information about your word. Please confirm that the word is ' \
-                         'spelled correctly or try the search again at a later time.'
-        return error_response
-
-    data = response.json()[0]
-
-    print(data)
-    return data
+updater = Updater(token=telegram_bot_token, use_context=True)
+dispatcher = updater.dispatcher
 
 
-get_info()
+# set up the introductory statement for the bot when the /start command is invoked
+def start(update, context):
+    chat_id = update.effective_chat.id
+    context.bot.send_message(chat_id=chat_id, text="Hello there. Provide any English word and I will give you a bunch "
+                                                   "of information about it.")
 
 
-if __name__ == "__main__":
-    port = int(os.environ.get('PORT', 5000))
-    app.run(debug=True, host='0.0.0.0', port=port)
+# obtain the information of the word provided and format before presenting.
+def get_word_info(update, context):
+    # get the word info
+    word_info = ['test', 'test2', 'test3', 'test4', 'test5', 'test6']
+
+    # If the user provides an invalid English word, return the custom response from get_info() and exit the function
+    if word_info.__class__ is str:
+        update.message.reply_text(word_info)
+        return
+
+    # format the data into a string
+    message = f"Word: may work or not"
+
+    update.message.reply_text(message)
+
+# run the start function when the user invokes the /start command 
+dispatcher.add_handler(CommandHandler("start", start))
+
+# invoke the get_word_info function when the user sends a message 
+# that is not a command.
+dispatcher.add_handler(MessageHandler(Filters.text, get_word_info))
+updater.start_polling()
 
 # import handlers
 # from telegram.ext import (
