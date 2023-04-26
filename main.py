@@ -6,7 +6,7 @@ from config import BOT_TOKEN
 
 telegram_bot_token = BOT_TOKEN
 
-updater = Updater(token=telegram_bot_token, use_context=True)
+updater = Updater(bot_token=telegram_bot_token, use_context=True)
 dispatcher = updater.dispatcher
 
 
