@@ -77,7 +77,7 @@ app.add_handler(CommandHandler("start", start))
 
 # invoke the get_word_info function when the user sends a message 
 # that is not a command.
-app.add_handler(MessageHandler(filters.text, get_word_info))
+app.add_handler(MessageHandler(filters.Text, get_word_info))
 updater.start_polling()
 
 # import handlers
