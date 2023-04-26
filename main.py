@@ -1,5 +1,5 @@
 import telegram
-from telegram.ext import Updater, MessageHandler, Filters
+from telegram.ext import Updater, MessageHandler, filters
 from telegram.ext import CommandHandler
 from dictionary import get_info
 from config import BOT_TOKEN
@@ -78,7 +78,7 @@ dispatcher.add_handler(CommandHandler("start", start))
 
 # invoke the get_word_info function when the user sends a message 
 # that is not a command.
-dispatcher.add_handler(MessageHandler(Filters.text, get_word_info))
+dispatcher.add_handler(MessageHandler(filters.text, get_word_info))
 updater.start_polling()
 
 # import handlers
