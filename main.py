@@ -2,11 +2,10 @@ import telegram
 from telegram.ext import Updater, MessageHandler, filters
 from telegram.ext import CommandHandler
 from dictionary import get_info
+import queue
 from config import BOT_TOKEN
 
-telegram_bot_token = BOT_TOKEN
-
-updater = Updater(bot_token=telegram_bot_token, use_context=True)
+updater = Updater(BOT_TOKEN, use_context=True, update_queue=queue.Queue())
 dispatcher = updater.dispatcher
 
 
