@@ -93,11 +93,12 @@ from telegram.ext import (
     CommandHandler, ConversationHandler, MessageHandler,
     filters, CallbackQueryHandler, ApplicationBuilder, Updater
 )
+import queue
 from config import BOT_TOKEN
 
 def main():
     app = ApplicationBuilder().token(BOT_TOKEN).build()
-    # updater = Updater(token=BOT_TOKEN, use_context=True)#
+    updater = Updater(app, update_queue=queue.Queue())
     
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', handlers.start)],
@@ -118,9 +119,9 @@ def main():
     app.add_handler(CommandHandler("unset", handlers.unset))
     app.add_error_handler(handlers.error)
 
-    # app.start_webhook()
-
     app.run_polling()
+    updater.start_webhook(listen="0.0.0.0", port=5000, url_path=BOT_TOKEN)
+    updater.bot.set_webhook(url="https://limitless-spire-52683.herokuapp.com/" + BOT_TOKEN)
 
 if __name__ == '__main__':
     main()
