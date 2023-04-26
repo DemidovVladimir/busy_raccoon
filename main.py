@@ -1,11 +1,12 @@
 from telegram.ext import Updater, MessageHandler, filters
-from telegram.ext import CommandHandler
+from telegram.ext import CommandHandler, ApplicationBuilder
 from dictionary import get_info
 import queue
 from config import BOT_TOKEN
 
 updater = Updater(BOT_TOKEN, update_queue=queue.Queue())
-dispatcher = updater.bot
+# dispatcher = updater.bot.dispatcher
+app = ApplicationBuilder().token(BOT_TOKEN).build()
 
 
 # set up the introductory statement for the bot when the /start command is invoked
@@ -72,11 +73,11 @@ def get_word_info(update, context):
     update.message.reply_text(message)
 
 # run the start function when the user invokes the /start command 
-dispatcher.add_handler(CommandHandler("start", start))
+app.add_handler(CommandHandler("start", start))
 
 # invoke the get_word_info function when the user sends a message 
 # that is not a command.
-dispatcher.add_handler(MessageHandler(filters.text, get_word_info))
+app.add_handler(MessageHandler(filters.text, get_word_info))
 updater.start_polling()
 
 # import handlers
