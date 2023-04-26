@@ -1,4 +1,3 @@
-import telegram
 from telegram.ext import Updater, MessageHandler, filters
 from telegram.ext import CommandHandler
 from dictionary import get_info
@@ -6,7 +5,7 @@ import queue
 from config import BOT_TOKEN
 
 updater = Updater(BOT_TOKEN, update_queue=queue.Queue())
-dispatcher = updater.dispatcher
+dispatcher = updater.bot
 
 
 # set up the introductory statement for the bot when the /start command is invoked
