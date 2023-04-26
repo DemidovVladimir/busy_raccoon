@@ -1,5 +1,6 @@
 from telegram.ext import Updater, MessageHandler, filters
 from telegram.ext import CommandHandler, ApplicationBuilder
+import asyncio
 from dictionary import get_info
 import queue
 from config import BOT_TOKEN
@@ -78,7 +79,14 @@ app.add_handler(CommandHandler("start", start))
 # invoke the get_word_info function when the user sends a message 
 # that is not a command.
 app.add_handler(MessageHandler(filters.Text, get_word_info))
-updater.start_polling()
+loop = asyncio.get_event_loop()
+
+try:
+    loop.run_until_complete(updater.start_polling())
+except KeyboardInterrupt:
+    updater.stop()
+finally:
+    loop.close()
 
 # import handlers
 # from telegram.ext import (
