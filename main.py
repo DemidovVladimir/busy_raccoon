@@ -1,27 +1,35 @@
-from flask import Flask, request
-import telegram
-from telegram.ext import Dispatcher, MessageHandler, Filters, Updater
-from config import BOT_TOKEN, PORT, HEROKU_WEBHOOK_URL
+import os
+import requests
+from flask import Flask
 
 app = Flask(__name__)
 
-@app.route('/webhook', methods=['POST'])
-def webhook():
-    update = telegram.Update.de_json(request.get_json(force=True), bot)
-    dispatcher.process_update(update)
-    return 'ok'
 
-def handle_message(update, context):
-    message = update.message.text
-    context.bot.send_message(chat_id=update.message.chat_id, text=message)
+@app.route('/')
+def get_info(word):
 
-if __name__ == '__main__':
-    updater = Updater(token=BOT_TOKEN, use_context=True)
-    updater.bot.setWebhook(HEROKU_WEBHOOK_URL, allowed_updates=['message'])
-    bot = telegram.Bot(token=BOT_TOKEN)
-    dispatcher = Dispatcher(bot, None)
-    dispatcher.add_handler(MessageHandler(Filters.text, handle_message))
-    app.run(debug=True, host='0.0.0.0', port=PORT)
+    url = 'https://api.dictionaryapi.dev/api/v2/entries/en/{}'.format(word)
+
+    response = requests.get(url)
+
+# return a custom response if an invalid word is provided
+    if response.status_code == 404:
+        error_response = 'We are not able to provide any information about your word. Please confirm that the word is ' \
+                         'spelled correctly or try the search again at a later time.'
+        return error_response
+
+    data = response.json()[0]
+
+    print(data)
+    return data
+
+
+get_info("food")
+
+
+if __name__ == "__main__":
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=True, host='0.0.0.0', port=port)
 
 # import handlers
 # from telegram.ext import (
