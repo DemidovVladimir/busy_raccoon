@@ -6,9 +6,9 @@ app = Flask(__name__)
 
 
 @app.route('/')
-def get_info(word):
+def get_info():
 
-    url = 'https://api.dictionaryapi.dev/api/v2/entries/en/{}'.format(word)
+    url = 'https://api.dictionaryapi.dev/api/v2/entries/en/{}'.format('file')
 
     response = requests.get(url)
 
@@ -24,7 +24,7 @@ def get_info(word):
     return data
 
 
-get_info("food")
+get_info()
 
 
 if __name__ == "__main__":
