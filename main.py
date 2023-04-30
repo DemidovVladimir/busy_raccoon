@@ -136,4 +136,9 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler("unset", handlers.unset))
     app.add_error_handler(handlers.error)
 
-    run(app)
+    if MODE == 'dev':
+        run(app)
+    elif MODE == 'prod':
+        run(updater)
+    else:
+        sys.exit(1)
