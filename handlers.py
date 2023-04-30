@@ -5,7 +5,8 @@ from telegram import (
 from telegram.ext import (
     CallbackContext, ConversationHandler, ContextTypes
 )
-from flight_raccoon.flight_raccoon import give_me_flights, give_me_accomodation, InvalidArguments
+from flight_raccoon.flight_raccoon import give_me_flights, give_me_accomodation
+from flight_raccoon.exceptions import InvalidArguments
 import logging, datetime, pytz
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger()

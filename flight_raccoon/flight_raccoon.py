@@ -1,4 +1,5 @@
-from flight_raccoon.flights import Flights, InvalidArguments
+from flight_raccoon.flights import Flights
+from flight_raccoon.exceptions import InvalidArguments
 import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger()
