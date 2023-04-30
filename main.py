@@ -102,12 +102,12 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger()
 
 if MODE == 'dev':
-    def run(updater):
-        updater.start_polling()
+    def run(app):
+        app.run_polling()
 elif MODE == 'prod':
-    def run(updater):
-        updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=BOT_TOKEN)
-        updater.bot.set_webhook(f"https://{HEROKU_APP_NAME}.herokuapp.com/{BOT_TOKEN}")
+    def run(app):
+        app.start_webhook(listen="0.0.0.0", port=PORT, url_path=BOT_TOKEN)
+        app.bot.set_webhook(f"https://{HEROKU_APP_NAME}.herokuapp.com/{BOT_TOKEN}")
 else:
     logger.error('NO MODE SPECIFIED')
     sys.exit(1)
@@ -136,4 +136,4 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler("unset", handlers.unset))
     app.add_error_handler(handlers.error)
 
-    run(updater)
+    run(app)
