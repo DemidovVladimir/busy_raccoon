@@ -94,12 +94,29 @@ from telegram.ext import (
     filters, CallbackQueryHandler, ApplicationBuilder, Updater
 )
 import queue
-from config import BOT_TOKEN
+from config import BOT_TOKEN, MODE, PORT, HEROKU_APP_NAME
+import logging
+import sys
 
-def main():
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger()
+
+if MODE == 'dev':
+    def run(updater):
+        updater.start_polling()
+elif MODE == 'prod':
+    def run(updater):
+        updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=BOT_TOKEN)
+        updater.bot.set_webhook(f"https://{HEROKU_APP_NAME}.herokuapp.com/{BOT_TOKEN}")
+else:
+    logger.error('NO MODE SPECIFIED')
+    sys.exit(1)
+
+if __name__ == '__main__':
+    logger.info('Starting bot...')
     app = ApplicationBuilder().token(BOT_TOKEN).build()
     updater = Updater(app, update_queue=queue.Queue())
-    
+
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', handlers.start)],
         states={
@@ -119,9 +136,4 @@ def main():
     app.add_handler(CommandHandler("unset", handlers.unset))
     app.add_error_handler(handlers.error)
 
-    app.run_polling()
-    updater.start_webhook(listen="0.0.0.0", port=5000, url_path=BOT_TOKEN)
-    updater.bot.set_webhook(url="https://limitless-spire-52683.herokuapp.com/" + BOT_TOKEN)
-
-if __name__ == '__main__':
-    main()
+    run(updater)
