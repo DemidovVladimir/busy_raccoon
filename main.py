@@ -16,7 +16,7 @@ if MODE == 'dev':
         app.run_polling()
 elif MODE == 'prod':
     def run(app):
-        app.start_webhook(listen="0.0.0.0", port=PORT, url_path=HEROKU_APP_NAME+BOT_TOKEN, webhook_url=HEROKU_APP_NAME+BOT_TOKEN)
+        app.start_webhook(listen="0.0.0.0", port=PORT, url_path=BOT_TOKEN, webhook_url=HEROKU_APP_NAME+BOT_TOKEN)
         app.bot.run_webhook(f"https://{HEROKU_APP_NAME}.herokuapp.com/{BOT_TOKEN}")
 else:
     logger.error('NO MODE SPECIFIED')
