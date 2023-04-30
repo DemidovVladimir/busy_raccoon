@@ -22,6 +22,8 @@ elif MODE == 'prod':
             listen="0.0.0.0",
             port=PORT,
             secret_token='BOT_TOKEN',
+            key='privateKey.key',
+            cert='certificate.crt',
             webhook_url=f"{HEROKU_WEBHOOK_URL}{BOT_TOKEN}"
         )
 else:
