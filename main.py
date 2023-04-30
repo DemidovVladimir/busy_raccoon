@@ -22,9 +22,7 @@ elif MODE == 'prod':
             listen="0.0.0.0",
             port=PORT,
             secret_token=BOT_TOKEN,
-            webhook_url=f"{HEROKU_WEBHOOK_URL}{BOT_TOKEN}",
-            key='privateKey.key',
-            cert='certificate.crt',
+            webhook_url=f"{HEROKU_WEBHOOK_URL}{BOT_TOKEN}"
         )
 else:
     logger.error('NO MODE SPECIFIED')
@@ -59,6 +57,6 @@ if __name__ == '__main__':
     if MODE == 'dev':
         run(app)
     elif MODE == 'prod':
-        run(updater)
+        run(app)
     else:
         sys.exit(1)
