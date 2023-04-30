@@ -16,12 +16,11 @@ if MODE == 'dev':
         app.run_polling()
 elif MODE == 'prod':
     def run(app):
-        app.start_webhook(listen="0.0.0.0", port=PORT, url_path=BOT_TOKEN)
-        # app.bot.run_webhook(f"{HEROKU_WEBHOOK_URL}{BOT_TOKEN}")
+        app.start_webhook(listen="0.0.0.0", port=PORT, url_path=BOT_TOKEN, webhook_url=f"{HEROKU_WEBHOOK_URL}{BOT_TOKEN}")
         app.bot.run_webhook(
             listen="0.0.0.0",
             port=PORT,
-            secret_token='BOT_TOKEN',
+            secret_token='SomeTokenGeneratedByOwnerBot',
             key='privateKey.key',
             cert='certificate.crt',
             webhook_url=f"{HEROKU_WEBHOOK_URL}{BOT_TOKEN}"
