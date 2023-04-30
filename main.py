@@ -17,15 +17,14 @@ if MODE == 'dev':
 elif MODE == 'prod':
     def run(app):
         app.start_webhook(listen="0.0.0.0", port=PORT, url_path=BOT_TOKEN, webhook_url=f"{HEROKU_WEBHOOK_URL}{BOT_TOKEN}")
-        # app.bot.run_webhook(
-        #     listen="0.0.0.0",
-        #     port=PORT,
-        #     secret_token='SomeTokenGeneratedByOwnerBot',
-        #     key='privateKey.key',
-        #     cert='certificate.crt',
-        #     webhook_url=f"{HEROKU_WEBHOOK_URL}{BOT_TOKEN}"
-        # )
-        updater.idle()
+        app.bot.run_webhook(
+            listen="0.0.0.0",
+            port=PORT,
+            secret_token='SomeTokenGeneratedByOwnerBot',
+            key='privateKey.key',
+            cert='certificate.crt',
+            webhook_url=f"{HEROKU_WEBHOOK_URL}{BOT_TOKEN}"
+        )
 else:
     logger.error('NO MODE SPECIFIED')
     sys.exit(1)
