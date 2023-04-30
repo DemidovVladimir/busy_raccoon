@@ -17,8 +17,7 @@ if MODE == 'dev':
 elif MODE == 'prod':
     def run(app):
         app.start_webhook(listen="0.0.0.0", port=PORT, url_path=BOT_TOKEN)
-        app.bot.set_webhook(f"{HEROKU_WEBHOOK_URL}{BOT_TOKEN}")
-        app.run_forever()
+        app.bot.run_webhook(f"{HEROKU_WEBHOOK_URL}{BOT_TOKEN}")
 else:
     logger.error('NO MODE SPECIFIED')
     sys.exit(1)
