@@ -1,1 +1,1 @@
-web: gunicorn -b 0.0.0.0:8443 run:main
+web: python3 main.py 8443
