@@ -1,10 +1,12 @@
-from flight_raccoon.flights import Flights
+from flight_raccoon.flights import Flights, InvalidArguments
 import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger()
 
 def give_me_flights(data: str) -> str:
     data = data.split(',')
+    if len(data) != 8:
+        raise InvalidArguments
     result = ''
     data = [x.strip() for x in data]
     fd = Flights()

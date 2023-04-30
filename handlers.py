@@ -5,7 +5,7 @@ from telegram import (
 from telegram.ext import (
     CallbackContext, ConversationHandler, ContextTypes
 )
-from flight_raccoon.flight_raccoon import give_me_flights, give_me_accomodation
+from flight_raccoon.flight_raccoon import give_me_flights, give_me_accomodation, InvalidArguments
 import logging, datetime, pytz
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger()
@@ -121,8 +121,8 @@ async def bot_reply(update: Update, context: CallbackContext) -> int:
     }
     logger.info(context.user_data['scheduler'])
     try:
-        # context.job_queue.run_daily(bot_ping, datetime.time(hour=int(hours), minute=int(minutes), tzinfo=pytz.timezone(timezone)),  days=(0, 1, 2, 3, 4, 5, 6), chat_id=chat_id, name=str(chat_id), data=data)
-        context.job_queue.run_once(bot_ping, 15, chat_id=chat_id, name=str(chat_id), data=data)
+        context.job_queue.run_daily(bot_ping, datetime.time(hour=int(hours), minute=int(minutes), tzinfo=pytz.timezone(timezone)),  days=(0, 1, 2, 3, 4, 5, 6), chat_id=chat_id, name=str(chat_id), data=data)
+        # context.job_queue.run_once(bot_ping, 15, chat_id=chat_id, name=str(chat_id), data=data)
         await bot.send_message(
             chat_id=chat_id,
             text="Job started... Please wait for the next itteration of results..."
@@ -145,8 +145,13 @@ async def bot_ping(context: ContextTypes.DEFAULT_TYPE) -> None:
                 chat_id=job.chat_id,
                 text=v,
             )
-    except Exception as e:
-        logger.warning(e)
+    except InvalidArguments:
+        logger.warning('Lack of arguments')
+        await context.bot.send_message(
+            chat_id=job.chat_id,
+            text="Please check the arguments you provided and try again"
+        )
+        raise InvalidArguments
 
 def remove_job_if_exists(name: str, context: ContextTypes.DEFAULT_TYPE) -> bool:
     current_jobs = context.job_queue.get_jobs_by_name(name)
