@@ -94,7 +94,7 @@ from telegram.ext import (
     filters, CallbackQueryHandler, ApplicationBuilder, Updater
 )
 import queue
-from config import BOT_TOKEN, MODE, PORT, HEROKU_APP_NAME
+from config import BOT_TOKEN, MODE, PORT, HEROKU_APP_NAME, HEROKU_WEBHOOK_URL
 import logging
 import sys
 
@@ -106,7 +106,7 @@ if MODE == 'dev':
         app.run_polling()
 elif MODE == 'prod':
     def run(app):
-        app.start_webhook(listen="0.0.0.0", port=PORT, url_path=BOT_TOKEN)
+        app.start_webhook(listen="0.0.0.0", port=PORT, url_path=HEROKU_WEBHOOK_URL)
         app.bot.run_webhook(f"https://{HEROKU_APP_NAME}.herokuapp.com/{BOT_TOKEN}")
 else:
     logger.error('NO MODE SPECIFIED')
