@@ -10,6 +10,11 @@ This is needed if you want to launch your own flight search bot
 BOT_TOKEN=<string> 
 TEQUILA_API=https://api.tequila.kiwi.com/v2
 TEQUILA_API_KEY=<string>
+PORT=8443
+HEROKU_WEBHOOK_URL=<string>
+HEROKU_API_KEY=<string>
+HEROKU_APP_NAME=<string>
+MODE=dev/prod
 ```
 
 ## Create a new Telegram bot with BotFather
