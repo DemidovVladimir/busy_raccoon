@@ -21,7 +21,7 @@ elif MODE == 'prod':
         app.run_webhook(
             listen="0.0.0.0",
             port=PORT,
-            secret_token=BOT_TOKEN,
+            secret_token='BOT_TOKEN',
             webhook_url=f"{HEROKU_WEBHOOK_URL}{BOT_TOKEN}"
         )
 else:
