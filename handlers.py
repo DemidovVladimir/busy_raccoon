@@ -93,7 +93,7 @@ async def bot_scheduler_set(update: Update, context: CallbackContext) -> int:
             return ConversationHandler.END
     else:
         await update.message.reply_text(
-            'Bye! I hope we can talk again some day.',
+            'Please provide arguments according instructions: time to get results from bot: hours:minutes, timezone',
             reply_markup=ReplyKeyboardRemove()
         )
 
