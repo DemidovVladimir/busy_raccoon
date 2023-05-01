@@ -148,11 +148,6 @@ async def bot_ping(context: ContextTypes.DEFAULT_TYPE) -> None:
             )
     except InvalidArguments:
         logger.warning('Lack of arguments')
-        await context.bot.send_message(
-            chat_id=job.chat_id,
-            text="Please check the arguments you provided and try again"
-        )
-        raise InvalidArguments
 
 def remove_job_if_exists(name: str, context: ContextTypes.DEFAULT_TYPE) -> bool:
     current_jobs = context.job_queue.get_jobs_by_name(name)
