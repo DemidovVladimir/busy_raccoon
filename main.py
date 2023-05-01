@@ -11,10 +11,10 @@ import sys
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger()
 
-if MODE == 'prod':
+if MODE == 'dev':
     def run(app):
         app.run_polling()
-elif MODE == 'dev':
+elif MODE == 'prod':
     def run(updater):
         updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=BOT_TOKEN, webhook_url=HEROKU_WEBHOOK_URL)
         updater.bot.run_webhook(
